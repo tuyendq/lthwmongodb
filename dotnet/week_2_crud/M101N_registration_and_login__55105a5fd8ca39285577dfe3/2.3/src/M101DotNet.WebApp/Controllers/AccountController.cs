@@ -36,6 +36,7 @@ namespace M101DotNet.WebApp.Controllers
             var blogContext = new BlogContext();
             // XXX WORK HERE
             // fetch a user by the email in model.Email
+            user = model.Email;
 
             if (user == null)
             {

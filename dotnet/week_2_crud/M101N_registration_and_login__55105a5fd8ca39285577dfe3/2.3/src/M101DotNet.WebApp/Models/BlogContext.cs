@@ -21,6 +21,7 @@ namespace M101DotNet.WebApp.Models
         private static readonly IMongoClient _client;
         private static readonly IMongoDatabase _database;
 
+        // Constructor
         static BlogContext()
         {
             var connectionString = ConfigurationManager.ConnectionStrings[CONNECTION_STRING_NAME].ConnectionString;

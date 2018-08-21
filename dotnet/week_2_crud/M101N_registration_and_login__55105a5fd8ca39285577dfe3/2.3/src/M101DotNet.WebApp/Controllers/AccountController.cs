@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using MongoDB.Driver;
 using M101DotNet.WebApp.Models;
 using M101DotNet.WebApp.Models.Account;
+using MongoDB.Bson;
 
 namespace M101DotNet.WebApp.Controllers
 {
@@ -36,7 +37,12 @@ namespace M101DotNet.WebApp.Controllers
             var blogContext = new BlogContext();
             // XXX WORK HERE
             // fetch a user by the email in model.Email
-            user = model.Email;
+            var col = blogContext.Users;
+            var user = new User();
+
+            var filter = Builders<User>.Filter.Eq(x=>x.Email, model.Email);
+            var results = await col.Find<User>(filter).ToListAsync();
+            user = results.First<User>();
 
             if (user == null)
             {
@@ -86,6 +92,13 @@ namespace M101DotNet.WebApp.Controllers
             var blogContext = new BlogContext();
             // XXX WORK HERE
             // create a new user and insert it into the database
+            var newUser = new User();
+            newUser.Name = model.Name;
+            newUser.Email = model.Email;
+            newUser._id = model.Email;
+
+            var col = blogContext.Users;
+            await col.InsertOneAsync(newUser);
 
             return RedirectToAction("Index", "Home");
         }

@@ -2,8 +2,10 @@ package course;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BlogPostDAO {
@@ -18,7 +20,7 @@ public class BlogPostDAO {
 
         // XXX HW 3.2,  Work Here
         Document post = null;
-
+        post = postsCollection.find(eq("permalink", permalink)).first();
 
 
         return post;
@@ -31,6 +33,8 @@ public class BlogPostDAO {
         // XXX HW 3.2,  Work Here
         // Return a list of DBObjects, each one a post from the posts collection
         List<Document> posts = null;
+
+        posts = postsCollection.find().limit(limit).into(new ArrayList<Document>());
 
         return posts;
     }

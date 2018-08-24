@@ -1,11 +1,14 @@
 package course;
 
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class BlogPostDAO {
@@ -34,7 +37,9 @@ public class BlogPostDAO {
         // Return a list of DBObjects, each one a post from the posts collection
         List<Document> posts = null;
 
-        posts = postsCollection.find().limit(limit).into(new ArrayList<Document>());
+        Bson sort = new Document("date", -1);
+
+        posts = postsCollection.find().limit(limit).sort(sort).into(new ArrayList<Document>());
 
         return posts;
     }
@@ -62,6 +67,20 @@ public class BlogPostDAO {
         // Build the post object and insert it
         Document post = new Document();
 
+        post.append("title", title)
+            .append("author", username)
+            .append("permalink", permalink)
+            .append("body", body)
+            .append("date", new Date())
+            .append("tags", tags)
+            .append("comments", new ArrayList<Document>());
+
+
+        try {
+            postsCollection.insertOne(post);            
+        } catch (MongoWriteException e) {
+            throw e;
+        }
 
         return permalink;
     }
@@ -87,5 +106,23 @@ public class BlogPostDAO {
         // - email is optional and may come in NULL. Check for that.
         // - best solution uses an update command to the database and a suitable
         //   operator to append the comment on to any existing list of comments
+
+        System.out.println("Insert comment by " + name + " : " + body);
+
+        Document comment = new Document();
+        comment.append("author", name)
+                .append("body", body);
+        if (email != null) {
+            comment.append("email", email);
+        }
+
+        // Bson filter = new Document("permalink", permalink);
+        
+        try {
+            postsCollection.updateOne(eq("permalink", permalink), new Document("$push", new Document ("comments", comment)));
+        } catch (MongoWriteException e) {
+            throw e;
+        }
+
     }
 }
